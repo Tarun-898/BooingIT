@@ -24,9 +24,19 @@ const lists=require("./routes/list.js");
 const reviews=require("./routes/review.js");
 const userRouter=require("./routes/user.js");
 
+// const chatRoutes = require("./routes/chat");
+// app.use("/api", chatRoutes);
+// const chatRoute = require("./routes/chat");
+// app.use("/chat", chatRoute);
+// const chatbotRoutes = require('./routes/chatbot.js');
+// app.use(express.json()); // ensure this is enabled
+// app.use('/chatbot', chatbotRoutes);
+
+
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"views"));
 app.use(express.urlencoded({extended:true}));
+app.use(express.json());
 app.use(methodOverride("_method"));
 app.engine("ejs",ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
@@ -46,6 +56,31 @@ async function main() {
 };
 
 
+////chatbot/////
+const chatbotRoutes = require('./routes/chatbot');
+app.use('/chatbot', chatbotRoutes);
+
+
+// app.post('/chatbot', (req, res) => {
+//     const userMessage = req.body.message.toLowerCase();
+//     const hotelPrice = 1000; // You can make this dynamic
+
+//     if (userMessage.includes('hi') || userMessage.includes('hello') || userMessage.includes('price')) {
+//         return res.json({ reply: "Hello! Please tell me your budget for this hotel." });
+//     }
+
+//     const budget = parseInt(userMessage.match(/\d+/)?.[0]);
+//     if (!isNaN(budget)) {
+//         if (budget >= hotelPrice * 0.9) {
+//             return res.json({ reply: `Great! I can offer you this hotel for ₹${budget}. Booking confirmed.` });
+//         } else {
+//             const finalOffer = hotelPrice * 0.9;
+//             return res.json({ reply: `Hmm, your budget is a bit low. I can offer you a final discount price of ₹${finalOffer}.` });
+//         }
+//     }
+
+//     res.json({ reply: "I'm sorry, I didn't understand that. Can you tell me your budget?" });
+// });
 
 
 app.use((err,req,res,next)=>{

@@ -1,4 +1,4 @@
-<% layout("/layouts/boilerplate") %>
+<!-- <% layout("/layouts/boilerplate") %>
 
 <body>
     <div class="row mt-3">
@@ -24,19 +24,26 @@
     </ul>
 </div>
 <div class="boot">
-    <h4 class="content">&#8377;<%=listData.price.toLocaleString("en-IN")%></h4>
-    <%if(currUser && currUser._id.equals(listData.owner._id)){%>
-      <div class="kuch">
-    <a href="/lists/<%=listData.id%>/edit"><button class="btn btn1">Edit</button></a>
-    <br><br>
-    <form method="POST" action="/lists/<%=listData._id%>?_method=DELETE">
-        <button class="btn btn2">Delete List</button>
+  <h4 class="content">&#8377;<%=listData.price.toLocaleString("en-IN")%></h4>
+
+  <% if (currUser && currUser._id.toString() !== listData.owner._id.toString()) { %>
+    <form method="POST" action="/lists/<%=listData._id%>/buy">
+      <button type="submit" class="btn btn1">BOOK NOW</button>
     </form>
-</div>
-    <%}%>
     
-    <!-- <a href="/lists">Return to home</a> -->
+  <% } %>
+
+  <% if (currUser && currUser._id.equals(listData.owner._id)) { %>
+      <div class="kuch">
+          <a href="/lists/<%=listData.id%>/edit"><button class="btn btn1">Edit</button></a>
+          <br><br>
+          <form method="POST" action="/lists/<%=listData._id%>?_method=DELETE">
+              <button class="btn btn2">Delete List</button>
+          </form>
+      </div>
+  <% } %>
 </div>
+
 </div>
 
 <%if(currUser){%>
@@ -94,4 +101,266 @@
 </div>
 </div>
 <br><br>
+
+
+  Chatbot UI
+  <div id="chatbox">
+    <div id="chatlog"></div>
+    <div class="chat-input">
+      <input id="userInput" placeholder="Ask about price or availability..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const message = input.value;
+      if (!message) return;
+
+      const chatlog = document.getElementById("chatlog");
+      chatlog.innerHTML += `<div class="user"><b>You:</b> ${message}</div>`;
+
+      const res = await fetch("/chat/<%= listData._id %>", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+
+      const data = await res.json();
+      chatlog.innerHTML += `<div class="bot"><b>Bot:</b> ${data.reply}</div>`;
+      input.value = "";
+      chatlog.scrollTop = chatlog.scrollHeight;
+    }
+  </script>
+
+  <style>
+    #chatbox {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      background: #1f1f1f;
+      color: white;
+      border-radius: 10px;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.4);
+      z-index: 1000;
+    }
+
+    #chatlog {
+      height: 200px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      background: #2c2c2c;
+      padding: 5px;
+      border-radius: 5px;
+    }
+
+    .user, .bot {
+      margin-bottom: 8px;
+    }
+
+    #userInput {
+      width: 70%;
+      padding: 5px;
+      border-radius: 4px;
+      border: none;
+    }
+
+    .chat-input button {
+      padding: 5px 10px;
+      background: #0f9d58;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .chat-input {
+      display: flex;
+      gap: 5px;
+    }
+    <script>
+      const hotelId = "<%= listData._id %>";
+      const hotelPrice = <%= listData.price %>;
+    
+      async function sendMessage() {
+        const input = document.getElementById("userInput");
+        const message = input.value;
+        if (!message) return;
+    
+        const chatlog = document.getElementById("chatlog");
+        chatlog.innerHTML += `<div class="user"><b>You:</b> ${message}</div>`;
+    
+        const res = await fetch("/chatbot/bargain", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message, hotelId, hotelPrice }),
+        });
+    
+        const data = await res.json();
+        chatlog.innerHTML += `<div class="bot"><b>Bot:</b> ${data.reply}</div>`;
+        input.value = "";
+        chatlog.scrollTop = chatlog.scrollHeight;
+      }
+    </script>
+    
+  </style>
+
+</body> -->
+<% layout("/layouts/boilerplate") %>
+
+<body>
+  <div class="row mt-3">
+    <h1>Location Details</h1>
+    <div class="col-8 offset-3">
+      <div class="card1">
+        <img src="<%= listData.image.url %>" class="card-img-top show-img img-fluid" alt="...">
+        <div class="card-body">
+          <p class="card-text">
+            <i>Owned By: <%= listData.owner.username %></i><br>
+            <b><%= listData.title %></b>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <ul>
+        <li><%= listData.title %></li>
+        <li><%= listData.description %></li>
+        <li><%= listData.location %></li>
+        <li><%= listData.country %></li>
+      </ul>
+    </div>
+
+    <div class="boot">
+      <h4 class="content">&#8377;<%= listData.price.toLocaleString("en-IN") %></h4>
+
+      <% if (currUser && currUser._id.toString() !== listData.owner._id.toString()) { %>
+        <form method="POST" action="/lists/<%= listData._id %>/buy">
+          <button type="submit" class="btn btn1">BOOK NOW</button>
+        </form>
+      <% } %>
+
+      <% if (currUser && currUser._id.equals(listData.owner._id)) { %>
+        <div class="kuch">
+          <a href="/lists/<%= listData.id %>/edit"><button class="btn btn1">Edit</button></a>
+          <br><br>
+          <form method="POST" action="/lists/<%= listData._id %>?_method=DELETE">
+            <button class="btn btn2">Delete List</button>
+          </form>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <% if (currUser) { %>
+    <hr>
+    <h3>Create A Review:</h3>
+    <form method="POST" action="/lists/<%= listData._id %>/reviews" class="needs-validation" novalidate onsubmit="return validateForm()">
+      <div class="mb-3 mt-3 col-8 offset-2">
+        <fieldset class="starability-slot">
+          <p>Rating :</p>
+          <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+          <label for="first-rate1" title="Terrible">1 star</label>
+          <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+          <label for="first-rate2" title="Not good">2 stars</label>
+          <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+          <label for="first-rate3" title="Average">3 stars</label>
+          <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+          <label for="first-rate4" title="Very good">4 stars</label>
+          <input type="radio" id="first-rate5" name="review[rating]" value="5" checked />
+          <label for="first-rate5" title="Amazing">5 stars</label>
+        </fieldset>
+      </div>
+      <div class="mb-3">
+        <label for="comment" class="form-label">Comment</label>
+        <textarea class="form-control" name="review[comment]" cols="8" rows="5" id="comment" required></textarea>
+        <div class="invalid-feedback">Please Enter a Comment</div>
+      </div>
+      <br>
+      <button class="btn btn-dark">Submit Review</button>
+    </form>
+  <% } %>
+
+  <hr>
+  <h4>All Reviews:</h4>
+  <br>
+  <div class="row mt-3">
+    <% for (let review of listData.reviews) { %>
+      <div class="col-md-4 mb-3">
+        <div class="card03" style="border: 1px solid grey; width: 20rem;">
+          <div class="card-body">
+            <h6 class="card-subtitle mb-2 text-muted">Rating: <%= review.rating %> Star<%= review.rating > 1 ? 's' : '' %></h6>
+            <p class="starability-result" data-rating="<%= review.rating %>">
+              Rated: <%= review.rating %> star<%= review.rating > 1 ? 's' : '' %>
+            </p>
+            <p>Comment: <%= review.comment %></p>
+            <b><i>Review By: <%= review.author.username %></i></b>
+          </div>
+          <form method="POST" action="/lists/<%= listData._id %>/reviews/<%= review._id %>?_method=DELETE">
+            <button class="btn btn2">Delete</button>
+          </form>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+ 
+      <!-- Chatbot UI -->
+<!-- <div id="chatbot-container">
+  <div id="chat-header">Hotel Chatbot 🤖</div>
+  <div id="chat-body"></div>
+  <div id="chat-input-area">
+    <input type="text" id="chat-input" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+Chatbot Script
+<script src="/js/chatbot.js"></script>
+<link rel="stylesheet" href="/css/chatbot.css">
+
+  </style> -->
+  <!-- Chatbot UI -->
+<div id="chatbot-container">
+  <div id="chat-header">Hotel Chatbot 🤖</div>
+  <div id="chat-body"></div>
+  <div id="chat-input-area">
+    <input type="text" id="chat-input" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+  const hotelId = "<%= listData._id %>";
+  const hotelPrice = <%= listData.price %>;
+
+  async function sendMessage() {
+    const input = document.getElementById("chat-input");
+    const message = input.value.trim();
+    if (!message) return;
+
+    const chatBody = document.getElementById("chat-body");
+    chatBody.innerHTML += `<div class="user"><b>You:</b> ${message}</div>`;
+
+    const res = await fetch(`/chatbot/bargain`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, hotelId, hotelPrice }),
+    });
+
+    const data = await res.json();
+    chatBody.innerHTML += `<div class="bot"><b>Bot:</b> ${data.reply}</div>`;
+    input.value = "";
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+</script>
+
+<link rel="stylesheet" href="/css/chatbot.css">
+
 </body>
+
